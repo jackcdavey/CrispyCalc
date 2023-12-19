@@ -22,8 +22,7 @@ struct ContentView: View {
         VStack(spacing: 12) {
             Spacer()
             // Display
-            DisplayView(displayValue: viewModel.displayValue) // Bind to ViewModel's displayValue
-
+            DisplayView(pastEquation: viewModel.pastEquation, displayValue: viewModel.displayValue)
             // Buttons
             ForEach(buttons.indices, id: \.self) { rowIndex in
                 HStack(spacing: 12) {

@@ -9,6 +9,7 @@ import Foundation
 
 class CalculatorViewModel: ObservableObject {
     @Published var displayValue = "0"
+    @Published var pastEquation = ""
 
     private var currentOperation: Operation?
     private var lastOperation: Operation?
@@ -27,10 +28,12 @@ class CalculatorViewModel: ObservableObject {
             }
         case "=":
             if hasTappedEquals {
-                // If equals was already tapped, we repeat the last operation with the lastValue
+                // Append last operation and value to pastEquation
+                pastEquation += " \(lastOperation?.rawValue ?? "") \(lastValue)"
                 repeatLastOperation()
             } else {
-                // If this is the first time equals is tapped after an input, we perform the current operation
+                // Append full equation to pastEquation before calculation
+                pastEquation = "\(displayValue) \(currentOperation?.rawValue ?? "") \(lastValue)"
                 performCalculation()
                 hasTappedEquals = true
             }
@@ -151,13 +154,14 @@ class CalculatorViewModel: ObservableObject {
     }
 
     private func clearValues() {
-          displayValue = "0"
-          currentValue = 0
-          lastValue = 0
-          lastOperation = nil
-          currentOperation = nil
-          isNewValue = true
-          hasTappedEquals = false
+        displayValue = "0"
+        pastEquation = ""
+        currentValue = 0
+        lastValue = 0
+        lastOperation = nil
+        currentOperation = nil
+        isNewValue = true
+        hasTappedEquals = false
       }
     
     private func formatResult(_ result: Double) -> String {

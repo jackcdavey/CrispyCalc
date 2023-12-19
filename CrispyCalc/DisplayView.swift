@@ -8,19 +8,26 @@
 import SwiftUI
 
 struct DisplayView: View {
+    var pastEquation: String?
     var displayValue: String
-    @Environment(\.colorScheme) var colorScheme // Environment property for color scheme
 
     var body: some View {
-        Text(displayValue)
-            .font(.largeTitle)
-            .padding()
-            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
-            .background(colorScheme == .dark ? Color.black : Color.white) // Background color change
-            .foregroundColor(colorScheme == .dark ? Color.white : Color.black) // Text color change
-//            .border(colorScheme == .dark ? Color.gray : Color.gray, width: 2)
+        VStack(alignment: .trailing, spacing: 4) {
+            Text(pastEquation ?? " ")
+                .font(.caption)
+                .foregroundColor(.gray)
+            Text(displayValue)
+                .font(.largeTitle)
+                .foregroundColor(.white)
+        }
+        .padding()
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
+        .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+        .background(Color.black)
     }
 }
+
 
 struct DisplayView_Previews: PreviewProvider {
     static var previews: some View {
