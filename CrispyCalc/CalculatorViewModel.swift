@@ -24,10 +24,26 @@ class CalculatorViewModel: ObservableObject {
             performCalculation()
         case "C":
             clear()
+        case "±":
+            toggleSign()
+        case "%":
+            convertToPercentage()
         default:
             break
         }
     }
+    
+    private func toggleSign() {
+            if let currentValue = Double(displayValue) {
+                displayValue = formatResult(-currentValue)
+            }
+        }
+
+        private func convertToPercentage() {
+            if let currentValue = Double(displayValue) {
+                displayValue = formatResult(currentValue / 100)
+            }
+        }
 
     private func appendNumber(_ number: String) {
         if isNewValue {
