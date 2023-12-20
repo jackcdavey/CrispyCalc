@@ -17,25 +17,33 @@ class CalculatorViewModel: ObservableObject {
     private var lastValue: Double = 0
     private var isNewValue = true
     private var hasTappedEquals = false
-    
+
     func receiveInput(_ input: String) {
         switch input {
         case "0"..."9", ".":
-            appendNumber(input)
+            if isNewValue || displayValue == "0" {
+                displayValue = input
+            } else {
+                displayValue += input
+            }
+            isNewValue = false
         case "+", "-", "×", "÷":
             if let operation = Operation(rawValue: input) {
-                setOperation(operation)
+                if !isNewValue {
+                    performCalculation()
+                }
+                currentOperation = operation
+                currentValue = Double(displayValue) ?? 0
+                displayValue += " \(input) "
+                isNewValue = false
             }
         case "=":
-            if hasTappedEquals {
-                // Append last operation and value to pastEquation
-                pastEquation += " \(lastOperation?.rawValue ?? "") \(lastValue)"
-                repeatLastOperation()
-            } else {
-                // Append full equation to pastEquation before calculation
-                pastEquation = "\(displayValue) \(currentOperation?.rawValue ?? "") \(lastValue)"
+            if !hasTappedEquals {
+                pastEquation = displayValue
                 performCalculation()
                 hasTappedEquals = true
+            } else {
+                repeatLastOperation()
             }
         case "C":
             clearValues()
@@ -46,7 +54,6 @@ class CalculatorViewModel: ObservableObject {
         default:
             break
         }
-        // If any input other than "=" is received, reset the equals flag
         if input != "=" {
             hasTappedEquals = false
         }
@@ -91,27 +98,13 @@ class CalculatorViewModel: ObservableObject {
 
 
     private func performCalculation() {
-        guard let operation = currentOperation,
-              let newValue = Double(displayValue) else { return }
-
-        // Perform calculation with current value and new value
-        calculate(operation: operation, with: newValue)
-
-        // Save the result of this calculation as the starting point for any subsequent calculations
-        currentValue = Double(displayValue) ?? 0
-
-        // Save the new value as the last value in case "=" is pressed again
-        if !hasTappedEquals {
+        if let operation = currentOperation,
+           let newValue = extractLastNumber(from: displayValue) {
             lastValue = newValue
+            calculate(operation: operation, with: newValue)
+            displayValue = formatResult(currentValue)
+            isNewValue = true
         }
-
-        // Update the display with the new current value
-        displayValue = formatResult(currentValue)
-
-        // Set state to indicate a new value entry is expected next
-        isNewValue = true
-        // Save the last operation in case "=" is pressed again
-        lastOperation = currentOperation
     }
 
     private func calculate(operation: Operation, with operand: Double) {
@@ -133,17 +126,29 @@ class CalculatorViewModel: ObservableObject {
         }
 
         // After performing the calculation, update the display value
-        displayValue = formatResult(currentValue)
+//        displayValue = formatResult(currentValue)
+//        currentValue = Double(displayValue) ?? 0
     }
 
     private func repeatLastOperation() {
         if let lastOperation = lastOperation {
-            // Perform the last operation using the last value
             calculate(operation: lastOperation, with: lastValue)
-            // Update displayValue with the new currentValue after repeating the operation
             displayValue = formatResult(currentValue)
         }
     }
+    
+    private func extractLastNumber(from equation: String) -> Double? {
+        // Split the equation by spaces to separate numbers and operators
+        let components = equation.split(separator: " ").map(String.init)
+        // Find the last component that can be converted to a Double
+        for component in components.reversed() {
+            if let number = Double(component) {
+                return number
+            }
+        }
+        return nil
+    }
+
 
 
     private func receiveNonEqualInput(_ input: String) {
