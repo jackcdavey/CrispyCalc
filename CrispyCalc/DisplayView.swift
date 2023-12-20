@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct DisplayView: View {
+    @Environment(\.colorScheme) var colorScheme
     var pastEquation: String?
     var displayValue: String
 
@@ -15,16 +16,16 @@ struct DisplayView: View {
         VStack(alignment: .trailing, spacing: 4) {
             Text(pastEquation ?? " ")
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(colorScheme == .dark ? Color.white : Color.black) // Text color change
             Text(displayValue)
                 .font(.largeTitle)
-                .foregroundColor(.white)
+                .foregroundColor(colorScheme == .dark ? Color.white : Color.black) // Text color change
         }
         .padding()
         .lineLimit(1)
         .minimumScaleFactor(0.5)
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
-        .background(Color.black)
+        .background(colorScheme == .dark ? Color.black : Color.white)
     }
 }
 
