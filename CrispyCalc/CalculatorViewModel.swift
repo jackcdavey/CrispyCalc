@@ -37,17 +37,20 @@ class CalculatorViewModel: ObservableObject {
     }
 
     private func handleNumberInput(_ number: String) {
-        if isNewValue {
-            // Start a new number input
-            displayValue = displayValue == "0" ? number : displayValue + number
+        if isNewValue || isEqualsRepeated {
+            if displayValue == "0" && number != "." {
+                displayValue = number // Replace '0' with the first number
+            } else {
+                displayValue += number // Append number or decimal point
+            }
             isNewValue = false
+            isEqualsRepeated = false
         } else {
-            // Append to the existing number or equation
             if number == ".", displayValue.contains(".") { return }
             displayValue += number
         }
-        isEqualsRepeated = false
     }
+
 
     private func handleOperationInput(_ operation: Operation) {
         if !isNewValue {
@@ -63,7 +66,7 @@ class CalculatorViewModel: ObservableObject {
     private func handleEqualsInput() {
         if !isEqualsRepeated {
             lastOperand = Double(displayValue.split(separator: " ").last ?? "0") ?? 0
-            pastEquation = displayValue
+            pastEquation = displayValue // Store the full equation
             calculate()
             displayValue = formatResult(operand)
             isEqualsRepeated = true
@@ -74,6 +77,7 @@ class CalculatorViewModel: ObservableObject {
             }
         }
     }
+
 
     private func calculate() {
         guard let operation = currentOperation, let newOperand = Double(displayValue.split(separator: " ").last ?? "0") else { return }
