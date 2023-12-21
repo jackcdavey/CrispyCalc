@@ -10,6 +10,7 @@ import Foundation
 class CalculatorViewModel: ObservableObject {
     @Published var displayValue = "0"
     @Published var pastEquation = ""
+    @Published var equationElements: [String] = []
 
     private var currentOperation: Operation?
     private var isNewValue = true
@@ -60,28 +61,30 @@ class CalculatorViewModel: ObservableObject {
         currentOperation = operation
         displayValue += " \(operation.rawValue) "
         isNewValue = true
-        isEqualsRepeated = false
+        isEqualsRepeated = false // Reset this flag whenever a new operation is inputted
     }
 
     private func handleEqualsInput() {
         if !isEqualsRepeated {
             lastOperand = Double(displayValue.split(separator: " ").last ?? "0") ?? 0
-            pastEquation = displayValue // Store the full equation
             calculate()
+            pastEquation = displayValue + " ="
             displayValue = formatResult(operand)
             isEqualsRepeated = true
         } else {
             if let operation = currentOperation {
-                operand = performOperation(operation, operand, lastOperand)
-                displayValue = formatResult(operand)
+                let newResult = performOperation(operation, operand, lastOperand)
+                pastEquation = "\(formatResult(operand)) \(operation.rawValue) \(formatResult(lastOperand)) ="
+                operand = newResult
+                displayValue = formatResult(newResult)
             }
         }
     }
 
-
     private func calculate() {
         guard let operation = currentOperation, let newOperand = Double(displayValue.split(separator: " ").last ?? "0") else { return }
         operand = performOperation(operation, operand, newOperand)
+        equationElements.append(contentsOf: [String(describing: operation.rawValue), String(describing: newOperand)])
     }
 
     private func performOperation(_ operation: Operation, _ a: Double, _ b: Double) -> Double {

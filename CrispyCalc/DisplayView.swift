@@ -9,17 +9,24 @@ import SwiftUI
 
 struct DisplayView: View {
     @Environment(\.colorScheme) var colorScheme
-    var pastEquation: String?
+    var pastEquation: String
     var displayValue: String
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 4) {
-            Text(pastEquation ?? " ")
+            // Past Equation
+            Text(pastEquation)
                 .font(.caption)
-                .foregroundColor(colorScheme == .dark ? Color.white : Color.black) // Text color change
+                .foregroundColor(colorScheme == .dark ? Color.white : Color.black)
+                .transition(.move(edge: .top))
+                .animation(.easeInOut, value: pastEquation)
+
+            // Main Display
             Text(displayValue)
                 .font(.largeTitle)
-                .foregroundColor(colorScheme == .dark ? Color.white : Color.black) // Text color change
+                .foregroundColor(colorScheme == .dark ? Color.white : Color.black)
+                .transition(.move(edge: .trailing))
+                .animation(.easeInOut, value: displayValue)
         }
         .padding()
         .lineLimit(1)
@@ -30,12 +37,13 @@ struct DisplayView: View {
 }
 
 
+
 struct DisplayView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            DisplayView(displayValue: "12345")
+            DisplayView(pastEquation: "1 + 1", displayValue: "2")
                 .preferredColorScheme(.light)
-            DisplayView(displayValue: "12345")
+            DisplayView(pastEquation: "1 + 1", displayValue: "2")
                 .preferredColorScheme(.dark)
         }
     }
